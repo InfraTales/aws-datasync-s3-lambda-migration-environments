@@ -1,0 +1,47 @@
+{
+  "repo_key": "cdk-ts__Pr5067",
+  "public_slug": "aws-datasync-s3-lambda-migration-environments",
+  "architecture_model_path": "diagrams/architecture_model.json",
+  "diagrams": [
+    {
+      "id": "repo_architecture",
+      "type": "architecture",
+      "role": "repo",
+      "source_model_path": "diagrams/architecture_model.json",
+      "rendered_path": "diagrams/rendered/repo-architecture.png",
+      "required": true,
+      "placement_key": "repo_docs",
+      "caption": "Technical infrastructure map for AWS Datasync S3 Lambda Migration Environments. This repo-grade view shows the concrete AWS services, regional boundaries, and control-plane components that govern failover, recovery, and auditability across us-west-2.",
+      "status": "approved",
+      "skip_reason": "",
+      "reviewer_notes": "",
+      "evidence_summary": [
+        "Regional deployment evidence: primary=us-west-2.",
+        "Route 53 Failover DNS: cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,",
+        "Aurora Database: lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+        "DynamoDB Global Tables: docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production"
+      ],
+      "confidence_summary": "explicit_components=19, inferred_components=0, multi_region=True"
+    },
+    {
+      "id": "article_architecture",
+      "type": "architecture",
+      "role": "article",
+      "source_model_path": "diagrams/architecture_model.json",
+      "rendered_path": "diagrams/rendered/article-architecture.png",
+      "required": true,
+      "placement_key": "architecture_overview",
+      "caption": "Editorial architecture view for AWS Datasync S3 Lambda Migration Environments. Read this as the system spine: traffic enters through the primary edge, state is protected across regions, and the failover control plane stays separate from the request path.",
+      "status": "approved",
+      "skip_reason": "",
+      "reviewer_notes": "",
+      "evidence_summary": [
+        "Regional deployment evidence: primary=us-west-2.",
+        "Route 53 Failover DNS: cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,",
+        "Aurora Database: lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+        "DynamoDB Global Tables: docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production"
+      ],
+      "confidence_summary": "explicit_components=19, inferred_components=0, multi_region=True"
+    }
+  ]
+}
