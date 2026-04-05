@@ -36,15 +36,21 @@ The stack provisions a multi-service migration pipeline using AWS DataSync for S
 
 ## 🏗️ Architecture
 
-```mermaid
-graph LR
-    Lambda --> Aurora --> S3 --> EB --> SQS --> SNS
-```
+<p align="center">
+  <img src="diagrams/rendered/repo-architecture.png" alt="Architecture Diagram" width="800">
+</p>
 
-> 📐 See [`diagrams/`](diagrams/) for full architecture, sequence, and data flow diagrams.
+> Full architecture diagram showing DataSync, DMS, Step Functions, Glue, Aurora, OpenSearch, and EventBridge integration across multi-environment boundaries.
 
-> Architecture diagrams in [`diagrams/`](diagrams/) show the full service topology (architecture, sequence, and data flow).
-> The [`docs/architecture.md`](docs/architecture.md) file covers component responsibilities and data flow.
+<details>
+<summary>📐 Simplified article-grade diagram</summary>
+<br>
+<p align="center">
+  <img src="diagrams/rendered/article-architecture.png" alt="Simplified Architecture" width="700">
+</p>
+</details>
+
+> See [`docs/architecture.md`](docs/architecture.md) for component responsibilities and data flow details.
 
 ---
 
