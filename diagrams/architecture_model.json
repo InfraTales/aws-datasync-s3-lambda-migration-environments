@@ -1,0 +1,636 @@
+{
+  "version": 1,
+  "title": "Aws Datasync S3 Lambda Migration Environments",
+  "identity": {
+    "repo_key": "cdk-ts__Pr5067",
+    "public_slug": "aws-datasync-s3-lambda-migration-environments",
+    "article_format": "premium",
+    "primary_topic_tag": "aws-architecture"
+  },
+  "regions": [
+    {
+      "id": "primary",
+      "label": "Primary Region (us-west-2)",
+      "region": "us-west-2",
+      "role": "primary",
+      "evidence": [
+        "lib/tap-stack.ts:763 \u2014 'us-west-2': 'ami-0f508ba5fd9db6606',",
+        "lib/tap-stack.ts:811 \u2014 Arn: event.PhysicalResourceId || 'arn:aws:datasync:us-west-2:XXXXXXXXXXXX:agent/deleted',"
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "global",
+      "label": "Global Control Plane",
+      "kind": "global"
+    },
+    {
+      "id": "primary",
+      "label": "Primary Region (us-west-2)",
+      "kind": "region"
+    },
+    {
+      "id": "secondary",
+      "label": "Secondary",
+      "kind": "region"
+    }
+  ],
+  "components": [
+    {
+      "id": "route53_dns",
+      "label": "Route 53 Failover DNS",
+      "service": "route53",
+      "category": "ingress",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,"
+      ]
+    },
+    {
+      "id": "cloudwatch_ops",
+      "label": "CloudWatch Monitoring",
+      "service": "cloudwatch",
+      "category": "observability",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:38 \u2014 // import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'; // Commented out - alarm disabled for now",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:54 \u2014 // import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'; // Commented out - alarm disabled for now"
+      ]
+    },
+    {
+      "id": "eventbridge_bus",
+      "label": "EventBridge",
+      "service": "eventbridge",
+      "category": "integration",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:1064 \u2014 // MonitoringStack - EventBridge Rules",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "lib/README.md:46 \u2014 When you upload a file to the on-premises NFS share, DataSync detects it and syncs it to S3. The S3 upload triggers an EventBridge rule that invokes the Glue trigger Lambda. This L"
+      ]
+    },
+    {
+      "id": "stepfunctions_flow",
+      "label": "Step Functions",
+      "service": "stepfunctions",
+      "category": "integration",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:43 \u2014 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:59 \u2014 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';"
+      ]
+    },
+    {
+      "id": "lambda_control",
+      "label": "Failover Lambda",
+      "service": "lambda",
+      "category": "compute",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "bin/tap.ts:8 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "README.md:1 \u2014 # AWS Datasync S3 Lambda Migration Environments"
+      ]
+    },
+    {
+      "id": "sns_notifications",
+      "label": "SNS Notifications",
+      "service": "sns",
+      "category": "integration",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:41 \u2014 import * as sns from 'aws-cdk-lib/aws-sns';",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:57 \u2014 import * as sns from 'aws-cdk-lib/aws-sns';"
+      ]
+    },
+    {
+      "id": "cloudtrail_audit",
+      "label": "CloudTrail Audit",
+      "service": "cloudtrail",
+      "category": "observability",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/README.md:268 \u2014 - Enable CloudTrail for audit logging",
+        "docs/troubleshooting.md:12 \u2014 3. Check CloudTrail for denied API calls",
+        "SECURITY.md:27 \u2014 - \u2705 Enable CloudTrail for audit logging"
+      ]
+    },
+    {
+      "id": "audit_s3",
+      "label": "S3 Audit Storage",
+      "service": "s3",
+      "category": "storage",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "bin/tap.ts:8 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "README.md:1 \u2014 # AWS Datasync S3 Lambda Migration Environments"
+      ]
+    },
+    {
+      "id": "global_sessions",
+      "label": "DynamoDB Global Tables",
+      "service": "dynamodb",
+      "category": "data",
+      "boundary": "global",
+      "confidence": "explicit",
+      "evidence": [
+        "docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production",
+        "cdk.json:74 \u2014 \"@aws-cdk/aws-dynamodb:resourcePolicyPerReplica\": true,"
+      ]
+    },
+    {
+      "id": "primary_app_ingress",
+      "label": "Primary ALB",
+      "service": "alb",
+      "category": "ingress",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:83 \u2014 \"@aws-cdk/aws-elasticloadbalancingV2:albDualstackWithoutPublicIpv4SecurityGroupRulesDefault\": true,"
+      ]
+    },
+    {
+      "id": "primary_api",
+      "label": "Primary API Gateway",
+      "service": "api_gateway",
+      "category": "ingress",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:34 \u2014 \"@aws-cdk/aws-apigateway:disableCloudWatchRole\": true,"
+      ]
+    },
+    {
+      "id": "primary_compute",
+      "label": "Primary ECS Fargate",
+      "service": "ecs",
+      "category": "compute",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:26 \u2014 \"@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver\": true,"
+      ]
+    },
+    {
+      "id": "primary_database",
+      "label": "Aurora Primary",
+      "service": "aurora",
+      "category": "data",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "lib/README.md:9 \u2014 1. Database data - migrates relational database content from on-premises MySQL to Aurora MySQL"
+      ]
+    },
+    {
+      "id": "primary_kms",
+      "label": "KMS",
+      "service": "kms",
+      "category": "security",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:51 \u2014 \"@aws-cdk/aws-kms:aliasNameRef\": true,"
+      ]
+    },
+    {
+      "id": "primary_secrets",
+      "label": "Secrets Manager",
+      "service": "secretsmanager",
+      "category": "security",
+      "boundary": "primary",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:232 \u2014 credentials: rds.Credentials.fromGeneratedSecret('admin', {",
+        "cdk.json:46 \u2014 \"@aws-cdk/aws-secretsmanager:useAttachedSecretResourcePolicyForSecretTargetAttachments\": true,",
+        "test/tap-stack.unit.test.ts:477 \u2014 const secrets = getAllResourcesAcrossTemplates('AWS::SecretsManager::Secret');"
+      ]
+    },
+    {
+      "id": "secondary_app_ingress",
+      "label": "DR ALB",
+      "service": "alb",
+      "category": "ingress",
+      "boundary": "secondary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:83 \u2014 \"@aws-cdk/aws-elasticloadbalancingV2:albDualstackWithoutPublicIpv4SecurityGroupRulesDefault\": true,"
+      ]
+    },
+    {
+      "id": "secondary_compute",
+      "label": "DR ECS Fargate",
+      "service": "ecs",
+      "category": "compute",
+      "boundary": "secondary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:26 \u2014 \"@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver\": true,"
+      ]
+    },
+    {
+      "id": "secondary_database",
+      "label": "Aurora Secondary",
+      "service": "aurora",
+      "category": "data",
+      "boundary": "secondary",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "lib/README.md:9 \u2014 1. Database data - migrates relational database content from on-premises MySQL to Aurora MySQL"
+      ]
+    },
+    {
+      "id": "secondary_kms",
+      "label": "KMS",
+      "service": "kms",
+      "category": "security",
+      "boundary": "secondary",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:51 \u2014 \"@aws-cdk/aws-kms:aliasNameRef\": true,"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "dns_to_primary",
+      "from": "route53_dns",
+      "to": "primary_app_ingress",
+      "label": "active traffic",
+      "relationship": "request_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,",
+        "cdk.json:83 \u2014 \"@aws-cdk/aws-elasticloadbalancingV2:albDualstackWithoutPublicIpv4SecurityGroupRulesDefault\": true,"
+      ]
+    },
+    {
+      "id": "dns_to_secondary",
+      "from": "route53_dns",
+      "to": "secondary_app_ingress",
+      "label": "failover target",
+      "relationship": "request_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,",
+        "cdk.json:83 \u2014 \"@aws-cdk/aws-elasticloadbalancingV2:albDualstackWithoutPublicIpv4SecurityGroupRulesDefault\": true,"
+      ]
+    },
+    {
+      "id": "primary_ingress_compute",
+      "from": "primary_app_ingress",
+      "to": "primary_compute",
+      "label": "app traffic",
+      "relationship": "request_flow",
+      "confidence": "explicit",
+      "evidence": []
+    },
+    {
+      "id": "primary_api_compute",
+      "from": "primary_api",
+      "to": "primary_compute",
+      "label": "API invoke",
+      "relationship": "request_flow",
+      "confidence": "explicit",
+      "evidence": []
+    },
+    {
+      "id": "primary_compute_database",
+      "from": "primary_compute",
+      "to": "primary_database",
+      "label": "transaction data",
+      "relationship": "data_flow",
+      "confidence": "explicit",
+      "evidence": []
+    },
+    {
+      "id": "primary_compute_sessions",
+      "from": "primary_compute",
+      "to": "global_sessions",
+      "label": "session state",
+      "relationship": "data_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production",
+        "cdk.json:74 \u2014 \"@aws-cdk/aws-dynamodb:resourcePolicyPerReplica\": true,"
+      ]
+    },
+    {
+      "id": "secondary_ingress_compute",
+      "from": "secondary_app_ingress",
+      "to": "secondary_compute",
+      "label": "standby traffic",
+      "relationship": "request_flow",
+      "confidence": "explicit",
+      "evidence": []
+    },
+    {
+      "id": "secondary_compute_database",
+      "from": "secondary_compute",
+      "to": "secondary_database",
+      "label": "recovered traffic",
+      "relationship": "data_flow",
+      "confidence": "explicit",
+      "evidence": []
+    },
+    {
+      "id": "secondary_compute_sessions",
+      "from": "secondary_compute",
+      "to": "global_sessions",
+      "label": "session state",
+      "relationship": "data_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production",
+        "cdk.json:74 \u2014 \"@aws-cdk/aws-dynamodb:resourcePolicyPerReplica\": true,"
+      ]
+    },
+    {
+      "id": "database_replication",
+      "from": "primary_database",
+      "to": "secondary_database",
+      "label": "cross-region replication",
+      "relationship": "replication",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "lib/README.md:9 \u2014 1. Database data - migrates relational database content from on-premises MySQL to Aurora MySQL"
+      ]
+    },
+    {
+      "id": "monitor_eventbridge",
+      "from": "cloudwatch_ops",
+      "to": "eventbridge_bus",
+      "label": "alarm events",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:38 \u2014 // import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'; // Commented out - alarm disabled for now",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:54 \u2014 // import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch'; // Commented out - alarm disabled for now"
+      ]
+    },
+    {
+      "id": "eventbridge_stepfunctions",
+      "from": "eventbridge_bus",
+      "to": "stepfunctions_flow",
+      "label": "start failover",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:1064 \u2014 // MonitoringStack - EventBridge Rules",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "lib/README.md:46 \u2014 When you upload a file to the on-premises NFS share, DataSync detects it and syncs it to S3. The S3 upload triggers an EventBridge rule that invokes the Glue trigger Lambda. This L"
+      ]
+    },
+    {
+      "id": "stepfunctions_lambda",
+      "from": "stepfunctions_flow",
+      "to": "lambda_control",
+      "label": "orchestrate",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:43 \u2014 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:59 \u2014 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';"
+      ]
+    },
+    {
+      "id": "lambda_dns",
+      "from": "lambda_control",
+      "to": "route53_dns",
+      "label": "update DNS routing",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "bin/tap.ts:8 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "README.md:1 \u2014 # AWS Datasync S3 Lambda Migration Environments",
+        "cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,"
+      ]
+    },
+    {
+      "id": "lambda_database",
+      "from": "lambda_control",
+      "to": "secondary_database",
+      "label": "promote / verify",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "bin/tap.ts:8 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "README.md:1 \u2014 # AWS Datasync S3 Lambda Migration Environments"
+      ]
+    },
+    {
+      "id": "lambda_sns",
+      "from": "lambda_control",
+      "to": "sns_notifications",
+      "label": "notify operators",
+      "relationship": "control_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/tap-stack.ts:41 \u2014 import * as sns from 'aws-cdk-lib/aws-sns';",
+        "README.md:7 \u2014 This repository packages a real archive-derived AWS infrastructure implementation into an InfraTales-grade public repo candidate. The current solution centers on **datasync, s3, la",
+        "docs/architecture.md:57 \u2014 import * as sns from 'aws-cdk-lib/aws-sns';"
+      ]
+    },
+    {
+      "id": "cloudtrail_s3",
+      "from": "cloudtrail_audit",
+      "to": "audit_s3",
+      "label": "audit logs",
+      "relationship": "data_flow",
+      "confidence": "explicit",
+      "evidence": [
+        "lib/README.md:268 \u2014 - Enable CloudTrail for audit logging",
+        "docs/troubleshooting.md:12 \u2014 3. Check CloudTrail for denied API calls",
+        "SECURITY.md:27 \u2014 - \u2705 Enable CloudTrail for audit logging",
+        "lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "bin/tap.ts:8 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+        "README.md:1 \u2014 # AWS Datasync S3 Lambda Migration Environments"
+      ]
+    },
+    {
+      "id": "kms_primary_db",
+      "from": "primary_kms",
+      "to": "primary_database",
+      "label": "encrypt data",
+      "relationship": "security",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:51 \u2014 \"@aws-cdk/aws-kms:aliasNameRef\": true,"
+      ]
+    },
+    {
+      "id": "kms_secondary_db",
+      "from": "secondary_kms",
+      "to": "secondary_database",
+      "label": "encrypt data",
+      "relationship": "security",
+      "confidence": "explicit",
+      "evidence": [
+        "cdk.json:51 \u2014 \"@aws-cdk/aws-kms:aliasNameRef\": true,"
+      ]
+    }
+  ],
+  "article_view": {
+    "layout": "LR",
+    "nodes": [
+      {
+        "id": "article_dns",
+        "label": "Route 53\nDNS Failover",
+        "boundary": "global",
+        "components": [
+          "route53_dns"
+        ]
+      },
+      {
+        "id": "article_control",
+        "label": "Failover Control Plane\nCloudWatch + EventBridge + Step Functions + Lambda",
+        "boundary": "global",
+        "components": [
+          "cloudwatch_ops",
+          "eventbridge_bus",
+          "stepfunctions_flow",
+          "lambda_control",
+          "sns_notifications",
+          "cloudtrail_audit"
+        ]
+      },
+      {
+        "id": "article_sessions",
+        "label": "Session State\nDynamoDB Global Tables",
+        "boundary": "global",
+        "components": [
+          "global_sessions"
+        ]
+      },
+      {
+        "id": "article_primary_app",
+        "label": "Primary App Tier\nALB + API Gateway",
+        "boundary": "primary",
+        "components": [
+          "primary_app_ingress",
+          "primary_api",
+          "primary_compute"
+        ]
+      },
+      {
+        "id": "article_primary_data",
+        "label": "Primary Database\nAurora",
+        "boundary": "primary",
+        "components": [
+          "primary_database"
+        ]
+      },
+      {
+        "id": "article_secondary_app",
+        "label": "DR App Tier\nALB + API Gateway",
+        "boundary": "secondary",
+        "components": [
+          "secondary_app_ingress",
+          "secondary_compute"
+        ]
+      },
+      {
+        "id": "article_secondary_data",
+        "label": "DR Database\nAurora",
+        "boundary": "secondary",
+        "components": [
+          "secondary_database"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "article_dns",
+        "to": "article_primary_app",
+        "label": "active traffic",
+        "style": "solid"
+      },
+      {
+        "from": "article_dns",
+        "to": "article_secondary_app",
+        "label": "failover target",
+        "style": "dashed"
+      },
+      {
+        "from": "article_primary_app",
+        "to": "article_primary_data",
+        "label": "transactions",
+        "style": "solid"
+      },
+      {
+        "from": "article_primary_app",
+        "to": "article_sessions",
+        "label": "session state",
+        "style": "solid"
+      },
+      {
+        "from": "article_secondary_app",
+        "to": "article_secondary_data",
+        "label": "recovered traffic",
+        "style": "solid"
+      },
+      {
+        "from": "article_secondary_app",
+        "to": "article_sessions",
+        "label": "global state",
+        "style": "solid"
+      },
+      {
+        "from": "article_primary_data",
+        "to": "article_secondary_data",
+        "label": "Aurora replication",
+        "style": "dashed"
+      },
+      {
+        "from": "article_control",
+        "to": "article_dns",
+        "label": "switch routing",
+        "style": "solid"
+      },
+      {
+        "from": "article_control",
+        "to": "article_secondary_data",
+        "label": "promote / verify",
+        "style": "solid"
+      }
+    ]
+  },
+  "evidence_summary": [
+    "Regional deployment evidence: primary=us-west-2.",
+    "Route 53 Failover DNS: cdk.json:40 \u2014 \"@aws-cdk/aws-route53-patters:useCertificate\": true,",
+    "Aurora Database: lib/tap-stack.ts:99 \u2014 description: 'Security group for Aurora database',",
+    "DynamoDB Global Tables: docs/cost.md:27 \u2014 - Use DynamoDB on-demand for dev, provisioned for production",
+    "ECS Fargate: cdk.json:26 \u2014 \"@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver\": true,",
+    "Lambda: lib/tap-stack.ts:7 \u2014 * @project aws-datasync-s3-lambda-migration-environments",
+    "Step Functions: lib/tap-stack.ts:43 \u2014 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';",
+    "EventBridge: lib/tap-stack.ts:1064 \u2014 // MonitoringStack - EventBridge Rules"
+  ],
+  "confidence_summary": {
+    "explicit_components": 19,
+    "inferred_components": 0,
+    "multi_region": true
+  }
+}
